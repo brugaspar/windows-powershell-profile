@@ -1,9 +1,9 @@
 function my-profile {
-  Set-Location "c:/users/bruno/documents/WindowsPowerShell"
+  Set-Location "C:/Users/Bruno/Documents/WindowsPowerShell"
 }
 
 function my-projects {
-  Set-Location "c:/users/bruno/documents/projects"
+  Set-Location "C:/Users/Bruno/Documents/Projects"
 }
 
 function glog {
