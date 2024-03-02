@@ -3,7 +3,7 @@ function my-profile {
 }
 
 function my-projects {
-  Set-Location "C:/Users/Bruno/Documents/Projects"
+  Set-Location "D:/Projects"
 }
 
 function glog {
