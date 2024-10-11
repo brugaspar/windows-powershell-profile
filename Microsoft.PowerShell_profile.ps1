@@ -1,9 +1,13 @@
-function my-profile {
+function goto-profile {
   Set-Location "C:/Users/Bruno/Documents/WindowsPowerShell"
 }
 
-function my-projects {
+function goto-projects {
   Set-Location "D:/Projetos"
+}
+
+function goto-senha-group {
+  Set-Location "D:/Projetos/senha-info/senha-erp-group"
 }
 
 function glog {
