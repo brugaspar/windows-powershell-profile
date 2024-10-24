@@ -6,8 +6,39 @@ function goto-projects {
   Set-Location "D:/Projetos"
 }
 
-function goto-senha-group {
+function goto-senhag {
   Set-Location "D:/Projetos/senha-info/senha-erp-group"
+}
+
+function dotini {
+  [CmdletBinding()]
+  param (
+    [Parameter(Mandatory=$false)]
+    [Alias("F")]
+    [string]$FileDestination
+  )
+
+  $Destination = "SenhaERP/senha.ini"
+
+  if ($FileDestination) {
+    $Destination = $FileDestination
+  }
+
+  notepad.exe "D:/Projetos/senha-info/senha-erp-group/$Destination"
+}
+
+function fb-restore {
+  $origin = $args[0]
+  $destination = $args[1]
+
+  $currlocation = Get-Location
+  $fblocation = "C:\Program Files\Firebird\Firebird_2_5\bin"
+
+  Set-Location $fblocation
+
+  ./gbak.exe -c -user SYSDBA -password masterkey $currlocation\$origin $currlocation\$destination
+
+  Set-Location $currlocation
 }
 
 function glog {
