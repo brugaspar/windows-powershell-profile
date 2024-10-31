@@ -34,11 +34,21 @@ function fb-restore {
   $currlocation = Get-Location
   $fblocation = "C:\Program Files\Firebird\Firebird_2_5\bin"
 
-  Set-Location $fblocation
+  if (!$origin) {
+    Write-Host "Error: origin file is not set, please provide a valid file path" -ForegroundColor Red
+    return
+  }
 
-  ./gbak.exe -c -user SYSDBA -password masterkey $currlocation\$origin $currlocation\$destination
+  if (!$destination) {
+    $destination = "SENHA.GDB"
+  }
 
-  Set-Location $currlocation
+  try {
+    Set-Location $fblocation
+    ./gbak.exe -c -user SYSDBA -password masterkey $currlocation\$origin $currlocation\$destination
+  } finally {
+    Set-Location $currlocation
+  }
 }
 
 function glog {
