@@ -1,3 +1,31 @@
+function load-env-file {
+  param (
+    [string]$envFilePath = "$PSScriptRoot\.env"
+  )
+
+  if (Test-Path -Path $envFilePath) {
+    Get-Content $envFilePath | ForEach-Object {
+      # Ignora linhas em branco e comentários
+      if ($_ -match '^\s*$' -or $_ -match '^\s*#') { return }
+
+      # Divide a linha na chave e valor
+      $parts = $_ -split '=', 2
+      if ($parts.Length -eq 2) {
+        $key = $parts[0].Trim()
+        $value = $parts[1].Trim()
+        [System.Environment]::SetEnvironmentVariable($key, $value, [System.EnvironmentVariableTarget]::Process)
+      }
+    }
+
+    Write-Output "Variáveis de ambiente carregadas de $envFilePath"
+  }
+  else {
+    Write-Output "Arquivo .env não encontrado: $envFilePath"
+  }
+}
+
+load-env-file
+
 function goto-profile {
   Set-Location "C:/Users/Bruno/Documents/WindowsPowerShell"
 }
@@ -45,7 +73,7 @@ function fb-restore {
 
   try {
     Set-Location $fblocation
-    ./gbak.exe -c -user SYSDBA -password masterkey $currlocation\$origin $currlocation\$destination
+    ./gbak.exe -c -user SYSDBA -password $env:FIREBIRD_PASSWORD $currlocation\$origin $currlocation\$destination
   } finally {
     Set-Location $currlocation
   }
