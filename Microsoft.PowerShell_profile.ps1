@@ -16,11 +16,9 @@ function load-env-file {
         [System.Environment]::SetEnvironmentVariable($key, $value, [System.EnvironmentVariableTarget]::Process)
       }
     }
-
-    Write-Output "Variáveis de ambiente carregadas de $envFilePath"
   }
   else {
-    Write-Output "Arquivo .env não encontrado: $envFilePath"
+    Write-Output "Environment file '.env' not found: $envFilePath"
   }
 }
 
