@@ -24,6 +24,49 @@ function load-env-file {
 
 load-env-file
 
+function send-to-server {
+  $path = (Get-Item -Path ".\").FullName
+  $folder = (Get-Item -Path ".\").Name
+
+  $date = Get-Date -Format "yyMMdd-HHmm"
+  $filename = "$folder-$date.zip"
+
+  $ftp_server = "ftp://192.168.1.222/Update/API/$filename"
+  $ftp_username = $env:FTP_USERNAME
+  $ftp_password = $env:FTP_PASSWORD
+
+  $destination_path = "$path/$filename"
+
+  $ignore_items = @()
+
+  if (Test-Path -Path "$path\.gitignore") {
+    $ignore_items = Get-Content -Path "$path\.gitignore"
+  }
+
+  $items = Get-ChildItem -Path $path -Exclude $ignore_items | Select-Object -ExpandProperty FullName
+
+  $compress = @{
+    Path = $items
+    CompressionLevel = "Optimal"
+    DestinationPath = $destination_path
+  }
+
+  Compress-Archive @compress
+
+  $client = New-Object System.Net.WebClient
+  $client.Credentials = New-Object System.Net.NetworkCredential($ftp_username, $ftp_password)
+
+  try {
+    $client.UploadFile($ftp_server, $destination_path)
+  } catch {
+    Write-Host "`nFolder '$folder' not found in FTP Server, please manually create it and try again.`n"
+  } finally {
+    $client.Dispose()
+  }
+
+  Remove-Item -Path $destination_path
+}
+
 function goto-profile {
   Set-Location "C:/Users/Bruno/Documents/WindowsPowerShell"
 }
