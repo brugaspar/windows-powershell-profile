@@ -25,13 +25,24 @@ function load-env-file {
 load-env-file
 
 function send-to-server {
+  param (
+    [string]$ftp_host = "senha.zapto.org:50000"
+  )
+
+  $continue = Read-Host "`nCurrent host: $ftp_host. Do you want to continue? (y/n)"
+  Write-Host ""
+
+  if ($continue -ne "y") {
+    return
+  }
+
   $path = (Get-Item -Path ".\").FullName
   $folder = (Get-Item -Path ".\").Name
 
   $date = Get-Date -Format "yyMMdd-HHmm"
   $filename = "$folder-$date.zip"
 
-  $ftp_server = "ftp://192.168.1.222/Update/API/$filename"
+  $ftp_server = "ftp://$ftp_host/Update/API/$filename"
   $ftp_username = $env:FTP_USERNAME
   $ftp_password = $env:FTP_PASSWORD
 
@@ -59,7 +70,8 @@ function send-to-server {
   try {
     $client.UploadFile($ftp_server, $destination_path)
   } catch {
-    Write-Host "`nFolder '$folder' not found in FTP Server, please manually create it and try again.`n"
+    Write-Host "`nError on FTP request, try again.`n"
+    Write-Host "$($_.Exception.Message)`n" -ForegroundColor Red
   } finally {
     $client.Dispose()
   }
