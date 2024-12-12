@@ -24,12 +24,14 @@ function load-env-file {
 
 load-env-file
 
-function send-to-server {
+function upload-ftp {
   param (
-    [string]$ftp_host = "senha.zapto.org:50000"
+    [Parameter(Mandatory=$false)]
+    [Alias("H")]
+    [string]$ftphost = "senha.zapto.org:50000"
   )
 
-  $continue = Read-Host "`nCurrent host: $ftp_host. Do you want to continue? (y/n)"
+  $continue = Read-Host "`nCurrent host: $ftphost. Do you want to continue? (y/n)"
   Write-Host ""
 
   if ($continue -ne "y") {
@@ -42,7 +44,7 @@ function send-to-server {
   $date = Get-Date -Format "yyMMdd-HHmm"
   $filename = "$folder-$date.zip"
 
-  $ftp_server = "ftp://$ftp_host/Update/API/$filename"
+  $ftp_server = "ftp://$ftphost/Update/API/$filename"
   $ftp_username = $env:FTP_USERNAME
   $ftp_password = $env:FTP_PASSWORD
 
@@ -52,13 +54,14 @@ function send-to-server {
 
   if (Test-Path -Path "$path\.gitignore") {
     $ignore_items = Get-Content -Path "$path\.gitignore"
+    $ignore_items = $ignore_items -replace "/", ""
   }
 
   $items = Get-ChildItem -Path $path -Exclude $ignore_items | Select-Object -ExpandProperty FullName
 
   $compress = @{
     Path = $items
-    CompressionLevel = "Optimal"
+    CompressionLevel = "Fastest"
     DestinationPath = $destination_path
   }
 
