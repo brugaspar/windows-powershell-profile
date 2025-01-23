@@ -28,7 +28,10 @@ function upload-ftp {
   param (
     [Parameter(Mandatory=$false)]
     [Alias("H")]
-    [string]$ftphost = "senha.zapto.org:50000"
+    [string]$ftphost = "senha.zapto.org:50000",
+    [Parameter(Mandatory=$false)]
+    [Alias("F")]
+    [string]$currentFolder
   )
 
   $continue = Read-Host "`nCurrent host: $ftphost. Do you want to continue? (y/n)"
@@ -41,12 +44,19 @@ function upload-ftp {
   $path = (Get-Item -Path ".\").FullName
   $folder = (Get-Item -Path ".\").Name
 
+  if ($currentFolder) {
+    $folder = $currentFolder
+  }
+
   $date = Get-Date -Format "yyMMdd-HHmm"
   $filename = "$folder-$date.zip"
 
   $ftp_server = "ftp://$ftphost/Update/API/"
   $ftp_username = $env:FTP_USERNAME
   $ftp_password = $env:FTP_PASSWORD
+
+  echo "Uploading files to $ftp_server, filename: $filename"
+  return
 
   $destination_path = "$path/$filename"
 
