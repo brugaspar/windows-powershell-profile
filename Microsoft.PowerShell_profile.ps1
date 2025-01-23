@@ -44,7 +44,7 @@ function upload-ftp {
   $date = Get-Date -Format "yyMMdd-HHmm"
   $filename = "$folder-$date.zip"
 
-  $ftp_server = "ftp://$ftphost/Update/TESTE/"
+  $ftp_server = "ftp://$ftphost/Update/API/"
   $ftp_username = $env:FTP_USERNAME
   $ftp_password = $env:FTP_PASSWORD
 
