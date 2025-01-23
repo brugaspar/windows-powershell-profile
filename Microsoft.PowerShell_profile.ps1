@@ -44,7 +44,7 @@ function upload-ftp {
   $date = Get-Date -Format "yyMMdd-HHmm"
   $filename = "$folder-$date.zip"
 
-  $ftp_server = "ftp://$ftphost/Update/API/$filename"
+  $ftp_server = "ftp://$ftphost/Update/TESTE/"
   $ftp_username = $env:FTP_USERNAME
   $ftp_password = $env:FTP_PASSWORD
 
@@ -67,11 +67,42 @@ function upload-ftp {
 
   Compress-Archive @compress
 
+  # Renomear arquivos existentes no servidor FTP
+  try {
+    $request = [System.Net.FtpWebRequest]::Create("$ftp_server")
+    $request.Method = [System.Net.WebRequestMethods+Ftp]::ListDirectory
+    $request.Credentials = New-Object System.Net.NetworkCredential($ftp_username, $ftp_password)
+
+    $response = $request.GetResponse()
+    $reader = New-Object System.IO.StreamReader($response.GetResponseStream())
+    $files = $reader.ReadToEnd().Split("`n") -replace "`r", ""
+    $reader.Close()
+    $response.Close()
+
+    foreach ($file in $files) {
+      if ($file -match "^$folder-\d{6}-\d{4}\.zip$") {
+        $oldName = "$ftp_server$file"
+        $newName = "$ftp_serverxxx-$file"
+
+        $renameRequest = [System.Net.FtpWebRequest]::Create($oldName)
+        $renameRequest.Method = [System.Net.WebRequestMethods+Ftp]::Rename
+        $renameRequest.Credentials = New-Object System.Net.NetworkCredential($ftp_username, $ftp_password)
+        $renameRequest.RenameTo = "bkp-$file"
+
+        $renameResponse = $renameRequest.GetResponse()
+        $renameResponse.Close()
+      }
+    }
+  } catch {
+    Write-Host "`nError renaming files on FTP server: $($_.Exception.Message)`n" -ForegroundColor Red
+  }
+
+  # Fazer o upload do novo arquivo
   $client = New-Object System.Net.WebClient
   $client.Credentials = New-Object System.Net.NetworkCredential($ftp_username, $ftp_password)
 
   try {
-    $client.UploadFile($ftp_server, $destination_path)
+    $client.UploadFile("$ftp_server$filename", $destination_path)
   } catch {
     Write-Host "`nError on FTP request, try again.`n"
     Write-Host "$($_.Exception.Message)`n" -ForegroundColor Red
