@@ -55,9 +55,6 @@ function upload-ftp {
   $ftp_username = $env:FTP_USERNAME
   $ftp_password = $env:FTP_PASSWORD
 
-  echo "Uploading files to $ftp_server, filename: $filename"
-  return
-
   $destination_path = "$path/$filename"
 
   $ignore_items = @()
@@ -97,7 +94,7 @@ function upload-ftp {
         $renameRequest = [System.Net.FtpWebRequest]::Create($oldName)
         $renameRequest.Method = [System.Net.WebRequestMethods+Ftp]::Rename
         $renameRequest.Credentials = New-Object System.Net.NetworkCredential($ftp_username, $ftp_password)
-        $renameRequest.RenameTo = "bkp-$file"
+        $renameRequest.RenameTo = "xxx-$file"
 
         $renameResponse = $renameRequest.GetResponse()
         $renameResponse.Close()
