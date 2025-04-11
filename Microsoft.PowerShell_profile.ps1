@@ -28,30 +28,38 @@ function upload-ftp {
   param (
     [Parameter(Mandatory=$false)]
     [Alias("H")]
-    [string]$ftphost = "senha.zapto.org:50000",
+    [string]$hostPath = "senha.zapto.org:50000",
     [Parameter(Mandatory=$false)]
-    [Alias("F")]
-    [string]$currentFolder
+    [Alias("N")]
+    [string]$customName,
+    [Parameter(Mandatory=$false)]
+    [Alias("I")]
+    [switch]$ignoreUpload
   )
 
-  $continue = Read-Host "`nCurrent host: $ftphost. Do you want to continue? (y/n)"
-  Write-Host ""
+  $continue = "y"
 
-  if ($continue -ne "y") {
-    return
+  if (!$ignoreUpload) {
+    $continue = "n"
+    $continue = Read-Host "`nCurrent host: $hostPath. Do you want to continue? (y/n)"
+    Write-Host ""
+
+    if ($continue -ne "y") {
+      return
+    }
   }
 
   $path = (Get-Item -Path ".\").FullName
   $folder = (Get-Item -Path ".\").Name
 
-  if ($currentFolder) {
-    $folder = $currentFolder
+  if ($customName) {
+    $folder = $customName
   }
 
   $date = Get-Date -Format "yyMMdd-HHmm"
   $filename = "$folder-$date.zip"
 
-  $ftp_server = "ftp://$ftphost/Update/API/"
+  $ftp_server = "ftp://$hostPath/Update/API/"
   $ftp_username = $env:FTP_USERNAME
   $ftp_password = $env:FTP_PASSWORD
 
@@ -73,6 +81,10 @@ function upload-ftp {
   }
 
   Compress-Archive @compress
+
+  if ($ignoreUpload) {
+    return
+  }
 
   # Renomear arquivos existentes no servidor FTP
   try {
@@ -167,7 +179,7 @@ function fb-restore {
 
   try {
     Set-Location $fblocation
-    ./gbak.exe -c -user SYSDBA -password $env:FIREBIRD_PASSWORD $currlocation\$origin $currlocation\$destination
+    ./gbak.exe -c -user SYSDBA -password $env:PS_FIREBIRD_PASSWORD $currlocation\$origin $currlocation\$destination
   } finally {
     Set-Location $currlocation
   }
