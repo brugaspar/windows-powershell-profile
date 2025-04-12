@@ -35,14 +35,21 @@ function upload-ftp {
     [Parameter(Mandatory=$false)]
     [Alias("I")]
     [switch]$ignoreUpload
+    [Alias("Y")]
+    [switch]$yes
   )
 
   $continue = "y"
 
   if (!$ignoreUpload) {
     $continue = "n"
-    $continue = Read-Host "`nCurrent host: $hostPath. Do you want to continue? (y/n)"
-    Write-Host ""
+
+    if ($yes) {
+      $continue = "y"
+    } else {
+      $continue = Read-Host "`nCurrent host: $hostPath. Do you want to continue? (y/n)"
+      Write-Host ""
+    }
 
     if ($continue -ne "y") {
       return
@@ -100,16 +107,11 @@ function upload-ftp {
 
     foreach ($file in $files) {
       if ($file -match "^$folder-\d{6}-\d{4}\.zip$") {
-        $oldName = "$ftp_server$file"
-        $newName = "$ftp_serverxxx-$file"
-
-        $renameRequest = [System.Net.FtpWebRequest]::Create($oldName)
-        $renameRequest.Method = [System.Net.WebRequestMethods+Ftp]::Rename
-        $renameRequest.Credentials = New-Object System.Net.NetworkCredential($ftp_username, $ftp_password)
-        $renameRequest.RenameTo = "xxx-$file"
-
-        $renameResponse = $renameRequest.GetResponse()
-        $renameResponse.Close()
+        $deleteRequest = [System.Net.FtpWebRequest]::Create("$ftp_server$file")
+        $deleteRequest.Method = [System.Net.WebRequestMethods+Ftp]::DeleteFile
+        $deleteRequest.Credentials = New-Object System.Net.NetworkCredential($ftp_username, $ftp_password)
+        $deleteResponse = $deleteRequest.GetResponse()
+        $deleteResponse.Close()
       }
     }
   } catch {
