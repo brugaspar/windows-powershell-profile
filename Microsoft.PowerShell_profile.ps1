@@ -34,7 +34,7 @@ function upload-ftp {
     [string]$customName,
     [Parameter(Mandatory=$false)]
     [Alias("I")]
-    [switch]$ignoreUpload
+    [switch]$ignoreUpload,
     [Alias("Y")]
     [switch]$yes
   )
